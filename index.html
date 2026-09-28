@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bögre tervező</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <h1>Flegma. tervező</h1>
+    <p class="subtitle">Tervezz saját grafikát a bögre kerületére (21 × 9 cm), majd forgasd meg az előnézetet!</p>
+  </header>
+
+  <nav class="mobile-tabs" aria-label="Nézet váltás">
+    <button type="button" class="mobile-tab active" data-panel="preview">Előnézet</button>
+    <button type="button" class="mobile-tab" data-panel="canvas">Vászon</button>
+    <button type="button" class="mobile-tab" data-panel="tools">Eszközök</button>
+  </nav>
+
+  <main class="workspace">
+    <aside class="toolbar panel-section" data-panel="tools">
+      <div class="tools-live-preview" id="toolsLivePreview">
+        <div class="tools-live-preview-head">
+          <label class="tools-live-preview-toggle">
+            <input type="checkbox" id="toolsLivePreviewToggle" checked>
+            Élő nézet
+          </label>
+          <button type="button" class="tools-live-preview-link" id="toolsPreviewToCanvas">Vászon megnyitása</button>
+        </div>
+        <div class="tools-live-preview-body" id="toolsLivePreviewBody">
+          <canvas id="toolsPreviewCanvas" width="420" height="180" aria-label="Vászon élő előnézete"></canvas>
+        </div>
+      </div>
+
+      <section class="tool-section">
+        <h2>Hozzáadás</h2>
+
+        <div class="add-actions">
+          <label class="tool-btn add-layer-btn">
+            <input type="file" id="imageUpload" accept="image/*" hidden>
+            <span class="btn-icon">🖼️</span>
+            Kép hozzáadása
+          </label>
+
+          <div class="tool-group add-text-group">
+            <label for="textInput">Szöveg</label>
+            <input type="text" id="textInput" placeholder="Pl. Jó reggelt!" maxlength="40">
+            <div class="text-options">
+              <input type="color" id="textColor" value="#111827" title="Szöveg színe">
+              <div class="font-picker" data-font-picker="add">
+                <button type="button" class="font-picker-trigger" id="textFontTrigger" aria-haspopup="listbox" aria-expanded="false">Roboto</button>
+                <input type="hidden" id="textFont" value="Roboto">
+                <ul class="font-picker-list" id="textFontList" role="listbox" hidden></ul>
+              </div>
+              <input type="number" id="textSize" value="32" min="12" max="300" title="Betűméret">
+            </div>
+            <div class="text-stroke-options">
+              <label class="inline-label" for="textStrokeColor">Körvonal</label>
+              <input type="color" id="textStrokeColor" value="#ffffff" title="Körvonal színe">
+              <input type="number" id="textStrokeWidth" value="0" min="0" max="24" step="1" title="Körvonal vastagsága (px)">
+            </div>
+            <button type="button" id="addTextBtn" class="tool-btn add-layer-btn">
+              <span class="btn-icon">🔤</span>
+              Szöveg hozzáadása
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="layers-section">
+        <h2>Rétegek</h2>
+        <ul id="layerList" class="layer-list">
+          <li class="layer-empty">Még nincs réteg</li>
+        </ul>
+      </section>
+
+      <section class="layer-props hidden" id="layerProps">
+        <h2>Kiválasztott réteg</h2>
+        <p class="selected-layer-name" id="selectedLayerName"></p>
+
+        <div class="tool-group" id="imageSizeControls">
+          <label for="layerWidth">Szélesség (px)</label>
+          <div class="slider-control">
+            <input type="range" id="layerWidth" min="20" max="1050" value="200">
+            <input type="number" id="layerWidthValue" class="slider-number" min="20" max="1050" value="200">
+          </div>
+          <label for="layerHeight">Magasság (px)</label>
+          <div class="slider-control">
+            <input type="range" id="layerHeight" min="20" max="450" value="200">
+            <input type="number" id="layerHeightValue" class="slider-number" min="20" max="450" value="200">
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" id="keepAspect" checked>
+            Arány megtartása
+          </label>
+          <div class="flip-controls">
+            <button type="button" id="flipHorizontalBtn" class="secondary-btn">↔ Vízszintes tükrözés</button>
+            <button type="button" id="flipVerticalBtn" class="secondary-btn">↕ Függőleges tükrözés</button>
+          </div>
+        </div>
+
+        <div class="tool-group hidden" id="textSizeControls">
+          <label for="layerTextContent">Szöveg</label>
+          <input type="text" id="layerTextContent" maxlength="40" placeholder="Szöveg szerkesztése…">
+          <label for="layerFontSize">Betűméret (px)</label>
+          <div class="slider-control">
+            <input type="range" id="layerFontSize" min="12" max="300" value="32">
+            <input type="number" id="layerFontSizeValue" class="slider-number" min="12" max="300" value="32">
+          </div>
+          <label for="layerFontTrigger">Betűtípus</label>
+          <div class="font-picker" data-font-picker="layer">
+            <button type="button" class="font-picker-trigger" id="layerFontTrigger" aria-haspopup="listbox" aria-expanded="false">Roboto</button>
+            <input type="hidden" id="layerFont" value="Roboto">
+            <ul class="font-picker-list" id="layerFontList" role="listbox" hidden></ul>
+          </div>
+          <label for="layerTextColor">Szöveg színe</label>
+          <input type="color" id="layerTextColor" value="#111827">
+          <label for="layerStrokeColor">Körvonal színe</label>
+          <input type="color" id="layerStrokeColor" value="#ffffff">
+          <label for="layerStrokeWidth">Körvonal vastagsága (px)</label>
+          <div class="slider-control">
+            <input type="range" id="layerStrokeWidth" min="0" max="24" value="0">
+            <input type="number" id="layerStrokeWidthValue" class="slider-number" min="0" max="24" value="0">
+          </div>
+        </div>
+
+        <div class="tool-group" id="rotationControls">
+          <label for="layerRotation">Forgatás (°)</label>
+          <div class="slider-control">
+            <input type="range" id="layerRotation" min="-180" max="180" value="0">
+            <input type="number" id="layerRotationValue" class="slider-number" min="-180" max="180" value="0">
+          </div>
+        </div>
+
+        <button type="button" id="deleteLayerBtn" class="danger-btn">Réteg törlése</button>
+      </section>
+
+      <section class="export-section">
+        <h2>Mentés</h2>
+        <button type="button" id="saveDesignBtn" class="tool-btn save-design-btn">
+          <span class="btn-icon">💾</span>
+          Design mentése
+        </button>
+        <div class="hp-field" aria-hidden="true">
+          <label for="companyUrl">Cég weboldala</label>
+          <input type="text" id="companyUrl" name="company_url" tabindex="-1" autocomplete="off">
+        </div>
+        <p class="hint">A kész grafikát a szerverre mentjük. Megrendeléskor add meg a kapott kódot — így pontosan azonosítható a designod.</p>
+        <div class="design-code-box hidden" id="designCodeBox" role="status" aria-live="polite">
+          <p class="design-code-label">Megrendelési kódod</p>
+          <p class="design-code-value" id="designCodeValue"></p>
+          <div class="design-code-actions">
+            <button type="button" id="copyDesignCodeBtn" class="secondary-btn">Kód másolása</button>
+          </div>
+          <p class="hint" id="designCodeHint">Írd fel / másold ki, és a rendelésnél add meg ezt a kódot.</p>
+        </div>
+        <p class="design-save-error hidden" id="designSaveError"></p>
+      </section>
+
+      <section class="info-section">
+        <h2>Méretek</h2>
+        <ul>
+          <li><strong>Szélesség:</strong> 21 cm (kerület)</li>
+          <li><strong>Magasság:</strong> 9 cm (nyomtatható sáv)</li>
+          <li><strong>Előnézet:</strong> 330 ml-es bögre, cm-helyes minta</li>
+        </ul>
+        <p class="hint">A minta a bögre kerületén cm-arányosan jelenik meg; a fül körül fehér marad, csíkok nélkül.</p>
+      </section>
+    </aside>
+
+    <div class="modal-overlay hidden" id="saveModal" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+      <div class="modal-card" id="saveModalCard">
+        <h3 class="modal-title" id="saveModalTitle"></h3>
+        <p class="modal-message" id="saveModalMessage"></p>
+        <p class="modal-code hidden" id="saveModalCode"></p>
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn hidden" id="saveModalCopy">Kód másolása</button>
+          <button type="button" class="tool-btn modal-close-btn" id="saveModalClose">Rendben</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="canvas-panel panel-section" data-panel="canvas">
+      <div class="panel-header">
+        <h2>2D tervező vászon</h2>
+        <div class="panel-header-actions">
+          <div class="history-controls">
+            <button type="button" id="undoBtn" class="history-btn" title="Visszavonás (Ctrl+Z)" disabled>↶</button>
+            <button type="button" id="redoBtn" class="history-btn" title="Mégis (Ctrl+Y)" disabled>↷</button>
+          </div>
+          <span class="dimension-badge">21 cm × 9 cm</span>
+        </div>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="designCanvas" width="1050" height="450"></canvas>
+        <div class="ruler ruler-top">
+          <span>0 cm</span><span>5 cm</span><span>10 cm</span><span>15 cm</span><span>21 cm</span>
+        </div>
+        <div class="ruler ruler-left">
+          <span>0</span><span>4.5</span><span>9 cm</span>
+        </div>
+      </div>
+      <p class="canvas-hint">A teljes vászon látszik a bögrén, cm-helyes aránnyal. Kattints / koppints egy rétegre, húzd az áthelyezéshez, a sarkokkal méretezd, a felső körrel forgasd. Telefonon két ujjal (csippentés) is méretezhetsz.</p>
+    </section>
+
+    <section class="preview-panel panel-section is-active" data-panel="preview">
+      <div class="panel-header">
+        <h2>3D előnézet</h2>
+        <span class="dimension-badge">Húzd az egeret a forgatáshoz</span>
+      </div>
+      <div id="mugPreview"></div>
+      <div class="preview-controls">
+        <button type="button" id="resetRotation" class="secondary-btn">Nézet visszaállítása</button>
+        <div class="auto-rotate-controls">
+          <label class="auto-rotate-label">
+            <input type="checkbox" id="autoRotate">
+            Automatikus forgatás
+          </label>
+          <label class="auto-rotate-speed" for="autoRotateSpeed">
+            Sebesség
+            <div class="slider-control">
+              <input type="range" id="autoRotateSpeed" min="0.5" max="10" step="0.5" value="2">
+              <input type="number" id="autoRotateSpeedValue" class="slider-number" min="0.5" max="10" step="0.5" value="2">
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

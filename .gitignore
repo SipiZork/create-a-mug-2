@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+node_modules/
+designs/*.png
+!designs/.gitkeep
+!designs/.htaccess
+data/app-secret.txt
+data/rate/
+data/tokens/
